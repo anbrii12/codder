@@ -1,0 +1,24 @@
+from scapy.all import *
+from collections import Counter
+import os
+
+# Налаштування
+THRESHOLD = 100
+INTERFACE = 'eth0'
+
+# Лічильник пакетів
+packet_counts = Counter()
+
+def block_ip(ip):
+    os.system(f"iptables -A INPUT -s {ip} -j DROP")
+    print(f"Blocked IP: {ip}")
+
+def packet_handler(packet):
+    if IP in packet:
+        src_ip = packet[IP].src
+        packet_counts[src_ip] += 1
+        if packet_counts[src_ip] > THRESHOLD:
+            block_ip(src_ip)
+
+# Запуск моніторингу
+sniff(iface=INTERFACE, prn=packet_handler, store=False)
